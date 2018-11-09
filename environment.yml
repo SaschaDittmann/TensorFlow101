@@ -6,5 +6,5 @@ dependencies:
   - matplotlib
   - notebook
   - pip:
-  	- azure-cli
-  	- azureml-sdk[notebooks,automl]
+    - azure-cli
+    - azureml-sdk[notebooks,automl]
