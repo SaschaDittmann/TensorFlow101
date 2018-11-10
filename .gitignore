@@ -108,3 +108,6 @@ aml_config
 MNIST_data
 tb_data
 .pptx
+.amlignore
+outputs
+/python/models
