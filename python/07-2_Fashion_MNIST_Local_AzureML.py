@@ -86,7 +86,7 @@ from keras.callbacks import EarlyStopping
 my_callbacks = [EarlyStopping(monitor='val_acc', patience=5, mode='max')]
 
 import os
-os.makedirs('../outputs', exist_ok=True)
+os.makedirs('./outputs', exist_ok=True)
 
 #   Train the model and test/validate the mode with the test data after each cycle (epoch) through the training data
 #   Return history of loss and accuracy for each epoch
@@ -116,6 +116,6 @@ with experiment.start_logging() as run:
     plt.plot(epoch_list, hist.history['acc'], epoch_list, hist.history['val_acc'])
     
     plt.legend(('Training Accuracy', 'Validation Accuracy'))
-    plt.savefig("../outputs/history.png")
+    plt.savefig("./outputs/history.png")
     
-    run.upload_file("history.png", "../outputs/history.png")
+    run.upload_file("history.png", "./outputs/history.png")

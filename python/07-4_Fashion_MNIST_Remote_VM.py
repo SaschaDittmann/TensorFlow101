@@ -17,6 +17,7 @@ experiment = Experiment(workspace = ws, name = experiment_name)
 # Create Linux DSVM as a compute target
 from azureml.core.compute import DsvmCompute
 from azureml.core.compute_target import ComputeTargetException
+from time import sleep
 
 compute_target_name = 'mydsvm'
 
@@ -28,6 +29,7 @@ except ComputeTargetException:
     dsvm_config = DsvmCompute.provisioning_configuration(vm_size="Standard_D2_v2")
     dsvm_compute = DsvmCompute.create(ws, name=compute_target_name, provisioning_configuration=dsvm_config)
     dsvm_compute.wait_for_completion(show_output=True)
+    sleep(30) # 30 seconds delay to avoid connection errors
 
 # Configure for using a Remote VM
 from azureml.core.runconfig import RunConfiguration
