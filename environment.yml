@@ -8,3 +8,4 @@ dependencies:
   - pip:
     - azure-cli
     - azureml-sdk[notebooks,automl]
+    - tensorflow-serving-api
