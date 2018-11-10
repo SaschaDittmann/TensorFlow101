@@ -40,8 +40,12 @@ run_config = RunConfiguration(framework="python")
 run_config.target = dsvm_compute.name
 
 # specify CondaDependencies obj
-run_config.environment.python.conda_dependencies = CondaDependencies.create(
-	conda_packages=['tensorflow', 'keras', 'matplotlib'])
+conda_dep = CondaDependencies.create(
+    python_version='3.6.2', 
+    conda_packages=['keras', 'matplotlib']
+)
+conda_dep.add_tensorflow_conda_package(core_type='cpu')
+run_config.environment.python.conda_dependencies = conda_dep
 
 # Submit Experiment
 from azureml.core.script_run_config import ScriptRunConfig
