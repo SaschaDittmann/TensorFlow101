@@ -1,3 +1,10 @@
+from __future__ import print_function
+import keras
+from keras.datasets import fashion_mnist
+from keras.models import Sequential
+from keras.layers import Dense, Dropout, Flatten
+from keras.layers import Conv2D, MaxPooling2D
+from keras import backend as K
 from azureml.core import Experiment, Run, Workspace
 import azureml.core
 
@@ -8,14 +15,6 @@ ws = Workspace.from_config()
 print('Workspace name: ' + ws.name, 
       'Azure region: ' + ws.location, 
       'Resource group: ' + ws.resource_group, sep='\n')
-
-from __future__ import print_function
-import keras
-from keras.datasets import fashion_mnist
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv2D, MaxPooling2D
-from keras import backend as K
 
 # Number of classes - do not change unless the data changes
 num_classes = 10
