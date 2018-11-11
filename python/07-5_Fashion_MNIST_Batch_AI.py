@@ -22,9 +22,9 @@ compute_target_name = 'myazbai'
 
 try:
     batch_ai_compute = BatchAiCompute(workspace=ws, name=compute_target_name)
-    print('found existing:', batch_ai_compute.name)
+    print('found existing Azure Batch AI cluster:', batch_ai_compute.name)
 except ComputeTargetException:
-    print('creating new.')
+    print('creating new Azure Batch AI cluster...')
     batch_ai_config = BatchAiCompute.provisioning_configuration(
         vm_size="Standard_NC6",
         vm_priority="dedicated",
