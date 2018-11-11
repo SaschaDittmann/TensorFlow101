@@ -73,8 +73,6 @@ for (dirpath, dirnames, filenames) in os.walk(images_path):
 # and any additional files your training script depends on.
 project_folder = './tmp/image_retraining'
 os.makedirs(project_folder, exist_ok=True)
-
-import shutil
 shutil.copy('./scripts/retrain.py', project_folder)
 
 # Create a TensorFlow estimator
@@ -86,9 +84,11 @@ from azureml.train.dnn import TensorFlow
 from azureml.core.runconfig import DataReferenceConfiguration
 
 script_params={
-  '--image_dir': str(ds.as_download()),
-  '--summaries_dir': './outputs/retrain_logs',
-  '--saved_model_dir': './outputs/model'
+    '--image_dir': str(ds.as_download()),
+    '--summaries_dir': './outputs/retrain_logs',
+    '--output_graph': './outputs/output_graph.pb',
+    '--output_labels': './outputs/output_labels.txt',
+    '--saved_model_dir': './outputs/model'
 }
 
 estimator = TensorFlow(
@@ -114,3 +114,25 @@ estimator.run_config.data_references['workspacefilestore'] = dr
 # Submit Experiment
 run = experiment.submit(estimator)
 run.wait_for_completion(show_output=True)
+
+# Download results
+import time
+
+status = run.get_status()
+while status != 'Completed' and status != 'Failed':
+    print('current status: {} - waiting...'.format(run.get_status()))
+    time.sleep(10)
+    status = run.get_status()
+
+outputs_path = './outputs/image_retraining'
+
+os.makedirs(outputs_path, exist_ok=True)
+
+for filename in run.get_file_names():
+    if filename.startswith('outputs'):
+        print("downloading", filename, '...')
+        run.download_file(
+            filename, 
+            output_file_path=outputs_path + filename.replace('outputs/','/')
+        )
+print('completed')
