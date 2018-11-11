@@ -39,6 +39,17 @@ except ComputeTargetException:
     )
     batch_ai_compute.wait_for_completion(show_output=True)
 
+# Create a directory that will contain all the necessary code from your local machine 
+# that you will need access to on the remote resource. This includes the training script, 
+# and any additional files your training script depends on.
+import os
+
+project_folder = './tmp/fashion-mnist-batch-ai'
+os.makedirs(project_folder, exist_ok=True)
+
+import shutil
+shutil.copy('./scripts/train_Fashion_MNIST.py', project_folder)
+
 # Create a TensorFlow estimator
 # The AML SDK's TensorFlow estimator enables you to easily submit TensorFlow training
 # jobs for both single-node and distributed runs. 
@@ -46,7 +57,7 @@ except ComputeTargetException:
 # https://docs.microsoft.com/en-us/azure/machine-learning/service/how-to-train-tensorflow
 from azureml.train.dnn import TensorFlow
 
-estimator = TensorFlow(source_directory='./scripts',
+estimator = TensorFlow(source_directory=project_folder,
                        compute_target=batch_ai_compute,
                        entry_script='train_Fashion_MNIST.py',
                        node_count=1,

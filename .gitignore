@@ -104,10 +104,11 @@ venv.bak/
 .mypy_cache/
 
 # Workshop
-aml_config
-MNIST_data
-tb_data
+aml_config/
+MNIST_data/
+tb_data/
 .pptx
 .amlignore
-outputs
+outputs/
 /python/models
+tmp/

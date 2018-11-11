@@ -50,9 +50,21 @@ conda_dep = CondaDependencies.create(
 conda_dep.add_tensorflow_conda_package(core_type='cpu')
 run_config.environment.python.conda_dependencies = conda_dep
 
+# Create a directory that will contain all the necessary code from your local machine 
+# that you will need access to on the remote resource. This includes the training script, 
+# and any additional files your training script depends on.
+import os
+
+project_folder = './tmp/fashion-mnist-aci'
+os.makedirs(project_folder, exist_ok=True)
+
+import shutil
+shutil.copy('./scripts/train_Fashion_MNIST.py', project_folder)
+
+# Submit Experiment
 from azureml.core.script_run_config import ScriptRunConfig
 
-script_run_config = ScriptRunConfig(source_directory='./scripts',
+script_run_config = ScriptRunConfig(source_directory=project_folder,
                                     script='train_Fashion_MNIST.py',
                                     run_config=run_config)
 
