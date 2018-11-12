@@ -5,7 +5,9 @@ dependencies:
   - keras
   - matplotlib
   - notebook
+  - requests
+  - pandas
   - pip:
     - azure-cli
-    - azureml-sdk[notebooks,automl]
+    - azureml-sdk[automl,contrib,notebooks]
     - tensorflow-serving-api
