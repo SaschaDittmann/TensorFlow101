@@ -85,7 +85,7 @@ from azureml.core.runconfig import DataReferenceConfiguration
 
 script_params={
     '--image_dir': str(ds.as_download()),
-    '--summaries_dir': './outputs/retrain_logs',
+    '--summaries_dir': './logs',
     '--output_graph': './outputs/output_graph.pb',
     '--output_labels': './outputs/output_labels.txt',
     '--saved_model_dir': './outputs/model'
@@ -135,4 +135,12 @@ for filename in run.get_file_names():
             filename, 
             output_file_path=outputs_path + filename.replace('outputs/','/')
         )
-print('completed')
+
+print('Starting TensorBoard...')
+from azureml.contrib.tensorboard import Tensorboard
+
+# The Tensorboard constructor takes an array of runs, so be sure and pass it in as a single-element array here
+tb = Tensorboard([run])
+
+# If successful, start() returns a string with the URI of the instance.
+tb.start()
