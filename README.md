@@ -1,12 +1,11 @@
-# Workshop: TensorFlow 101 with Microsoft ML Services 
+# Workshop: TensorFlow 101 with the Azure Machine Learning Service
 
 [![](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/SaschaDittmann/TensorFlow101)
 [![](https://img.shields.io/github/tag/SaschaDittmann/TensorFlow101.svg)](https://github.com/SaschaDittmann/TensorFlow101)
 
-
 ## About this Docker Image
 
-This Docker Image has been created for the "TensorFlow 101 with Microsoft Machine Learning Services" workshop.
+This Docker Image has been created for the "TensorFlow 101 with the Azure Machine Learning service" workshop.
 
 It's based on the official [tensorflow docker image](https://hub.docker.com/r/tensorflow/tensorflow/) and adds the [Azure Machine Learning SDK for Python](https://docs.microsoft.com/en-us/python/api/overview/azure/ml/intro?view=azure-ml-py), as well as the jupyter notebooks required for the workshop.
 
@@ -33,3 +32,15 @@ Use your internet browser to open the juypter notebooks.
 The URL is shown in the docker logs output, e.g. `http://localhost:8888/?token=a84394577692cc3957c2b39f46f6aab02ff75b36341f8785`
 
 The workshop notebooks are located in the *TensorFlow101* folder.
+
+## About the Workshop
+
+Learn how to build intelligent algorithms into apps and websites. Use popular machine learning frameworks like [Tensorflow](https://www.tensorflow.org/), [Keras](https://keras.io/), [Scikit-learn](https://scikit-learn.org/) or any other Python-based framework to build your machine learning model and train it locally or in the cloud.
+
+The workshop starts with the machine learning basics and uses TensorFlow to explain the technical concepts behind algorithms like regressions, classifications and neural networks.
+
+With the help of the [Azure Machine Learning service](https://docs.microsoft.com/en-us/azure/machine-learning/service/) it moves long running tasks to the cloud to build, train, and deploy your models without blocking you the resources of your local machine.
+
+## What is Azure Machine Learning service
+
+The [Azure Machine Learning service](https://docs.microsoft.com/en-us/azure/machine-learning/service/) is a cloud service that you can use to develop and deploy machine learning models. Using the Azure Machine Learning service, you can track your models as you build, train, deploy, and manage them, all at the broad scale that the cloud provides.
