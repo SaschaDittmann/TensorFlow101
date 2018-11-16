@@ -119,3 +119,5 @@ tb = Tensorboard(runs)
 
 # If successful, start() returns a string with the URI of the instance.
 tb.start()
+input("Press Enter to close TensorBoard service...")
+tb.stop()

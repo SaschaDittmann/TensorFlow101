@@ -118,7 +118,7 @@ import matplotlib.pyplot as plt
 epoch_list = list(range(1, len(hist.history['acc']) + 1))  # values for x axis [1, 2, ..., # of epochs]
 plt.plot(epoch_list, hist.history['acc'], epoch_list, hist.history['val_acc'])
 plt.legend(('Training Accuracy', 'Validation Accuracy'))
-plt.savefig("outputs/history.png")
+run.log_image(name='Accuracy', plot=plt)
 
 # Use this only for export of the model.  
 # This must come before the instantiation of ResNet50

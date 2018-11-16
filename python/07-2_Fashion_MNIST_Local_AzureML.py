@@ -116,6 +116,6 @@ with experiment.start_logging() as run:
     plt.plot(epoch_list, hist.history['acc'], epoch_list, hist.history['val_acc'])
     
     plt.legend(('Training Accuracy', 'Validation Accuracy'))
-    plt.savefig("./outputs/history.png")
+    run.log_image(name='Accuracy', plot=plt)
     
     run.upload_file("history.png", "./outputs/history.png")
