@@ -28,8 +28,6 @@ print("Workspace name: ", ws.name)
 
 # Choose a name for the run history container in the workspace.
 experiment_name = 'automl-remote-batchai'
-project_folder = './tmp/automl-remote-batchai'
-
 experiment = Experiment(ws, experiment_name)
 
 # Create Batch AI Cluster
@@ -54,7 +52,7 @@ except ComputeTargetException:
     )
     batch_ai_compute.wait_for_completion(show_output=True)
 
-project_folder = '../projects/automl-remote-batchai'
+project_folder = './tmp/automl-remote-batchai'
 if not os.path.exists(project_folder):
     os.makedirs(project_folder)
 
