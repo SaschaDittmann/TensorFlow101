@@ -13,6 +13,8 @@ from sklearn import datasets
 import azureml.core
 from azureml.core.experiment import Experiment
 from azureml.core.workspace import Workspace
+from azureml.core.compute import BatchAiCompute
+from azureml.core.compute_target import ComputeTargetException
 from azureml.train.automl import AutoMLConfig
 from azureml.train.automl.run import AutoMLRun
 
@@ -31,9 +33,6 @@ project_folder = '../projects/automl-remote-batchai'
 experiment = Experiment(ws, experiment_name)
 
 # Create Batch AI Cluster
-from azureml.core.compute import BatchAiCompute
-from azureml.core.compute_target import ComputeTargetException
-
 compute_target_name = 'myazbai'
 
 try:

@@ -1,11 +1,19 @@
 # Import your dependencies
-from azureml.core import Workspace, Run
-from azureml.core.compute import AksCompute, ComputeTarget
-from azureml.core.webservice import Webservice, AksWebservice
-from azureml.core.image import Image
-from azureml.core.model import Model
+import os
+import shutil
+import time
+import json
+import requests
 
 import azureml.core
+from azureml.core import Workspace, Run
+from azureml.core.compute import AksCompute, ComputeTarget
+from azureml.core.compute_target import ComputeTargetException
+from azureml.core.webservice import Webservice, AksWebservice
+from azureml.core.image import Image, ContainerImage
+from azureml.core.model import Model
+from azureml.core.conda_dependencies import CondaDependencies 
+
 print("Azure ML SDK Version: ", azureml.core.VERSION)
 
 # Initialize Workspace
@@ -13,8 +21,6 @@ ws = Workspace.from_config()
 print("Resource group: ", ws.resource_group)
 print("Location: ", ws.location)
 print("Workspace name: ", ws.name)
-
-import os
 
 project_folder = './tmp/model_monitoring'
 os.makedirs(project_folder, exist_ok=True)
@@ -31,18 +37,13 @@ model = Model.register(
 
 print("Creating docker image configuration...")
 # Update your myenv.yml file with the required module
-from azureml.core.conda_dependencies import CondaDependencies 
-
 myenv = CondaDependencies.create(conda_packages=['numpy','scikit-learn'])
 myenv.add_pip_package("azureml-monitoring")
 
 with open(os.path.join(project_folder, "myenv.yml"),"w") as f:
     f.write(myenv.serialize_to_string())
 
-import shutil
 shutil.copy("./scripts/score_diabetes.py", './')
-
-from azureml.core.image import ContainerImage
 
 # Create your new Image
 image_config = ContainerImage.image_configuration(
@@ -64,9 +65,6 @@ image.wait_for_creation(show_output = True)
 
 print("Provisioning an AKS cluster...")
 # Provision the AKS Cluster
-from azureml.core.compute import AksCompute, ComputeTarget
-from azureml.core.compute_target import ComputeTargetException
-
 aks_name = 'myaks'
 
 try:
@@ -93,8 +91,6 @@ print(aks_target.provisioning_state)
 print(aks_target.provisioning_errors)
 
 # Check AKS cluster state
-import time
-
 status = aks_target.get_status()
 while status != 'Succeeded' and status != 'Failed':
     print('current status: {} - waiting...'.format(status))
@@ -124,8 +120,6 @@ print(aks_service.state)
 
 print("Testing deployed service via SDK...")
 # Test Service
-import json
-
 test_sample = json.dumps({'data': [
     [1,2,3,4,54,6,7,8,88,10], 
     [10,9,8,37,36,45,4,33,2,1]
@@ -139,9 +133,6 @@ print("prediction:", prediction)
 print()
 
 print("Testing deployed service via HTTP call...")
-import requests
-import json
-
 api_keys = aks_service.get_keys()
 headers = {
     'Content-Type':'application/json',
