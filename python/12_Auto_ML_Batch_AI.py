@@ -13,7 +13,7 @@ from sklearn import datasets
 import azureml.core
 from azureml.core.experiment import Experiment
 from azureml.core.workspace import Workspace
-from azureml.core.compute import BatchAiCompute
+from azureml.core.compute import AmlCompute
 from azureml.core.compute_target import ComputeTargetException
 from azureml.train.automl import AutoMLConfig
 from azureml.train.automl.run import AutoMLRun
@@ -34,18 +34,18 @@ experiment = Experiment(ws, experiment_name)
 compute_target_name = 'myazbai'
 
 try:
-    batch_ai_compute = BatchAiCompute(workspace=ws, name=compute_target_name)
+    batch_ai_compute = AmlCompute(workspace=ws, name=compute_target_name)
     print('found existing Azure Batch AI cluster:', batch_ai_compute.name)
 except ComputeTargetException:
     print('creating new Azure Batch AI cluster...')
-    batch_ai_config = BatchAiCompute.provisioning_configuration(
+    batch_ai_config = AmlCompute.provisioning_configuration(
         vm_size="Standard_NC6",
         vm_priority="dedicated",
         autoscale_enabled = True,
-        cluster_min_nodes = 0,
-        cluster_max_nodes = 4
+        min_nodes = 0,
+        max_nodes = 4
     )
-    batch_ai_compute = BatchAiCompute.create(
+    batch_ai_compute = AmlCompute.create(
         ws, 
         name=compute_target_name, 
         provisioning_configuration=batch_ai_config
@@ -64,11 +64,11 @@ automl_config = AutoMLConfig(
     task = 'classification',
     debug_log = 'automl_errors.log',
     primary_metric = 'AUC_weighted',
-    max_time_sec = 120,
+    iteration_timeout_minutes = 2,
     iterations = 20,
     n_cross_validations = 5,
     preprocess = False,
-    concurrent_iterations = 5,
+    max_concurrent_iterations = 5,
     verbosity = logging.INFO,
     path = project_folder,
     compute_target = batch_ai_compute,

@@ -68,24 +68,24 @@ runs.append(run)
 run.wait_for_completion(show_output=True)
 
 # Once more, with a Batch AI cluster
-from azureml.core.compute import BatchAiCompute
+from azureml.core.compute import AmlCompute
 from azureml.core.compute_target import ComputeTargetException
 
 compute_target_name = 'myazbai'
 
 try:
-    batch_ai_compute = BatchAiCompute(workspace=ws, name=compute_target_name)
-    print('found existing:', batch_ai_compute.name)
+    batch_ai_compute = AmlCompute(workspace=ws, name=compute_target_name)
+    print('found existing Azure Batch AI cluster:', batch_ai_compute.name)
 except ComputeTargetException:
-    print('creating new.')
-    batch_ai_config = BatchAiCompute.provisioning_configuration(
+    print('creating new Azure Batch AI cluster...')
+    batch_ai_config = AmlCompute.provisioning_configuration(
         vm_size="Standard_NC6",
         vm_priority="dedicated",
         autoscale_enabled = True,
-        cluster_min_nodes = 0,
-        cluster_max_nodes = 4
+        min_nodes = 0,
+        max_nodes = 4
     )
-    batch_ai_compute = BatchAiCompute.create(
+    batch_ai_compute = AmlCompute.create(
         ws, 
         name=compute_target_name, 
         provisioning_configuration=batch_ai_config
