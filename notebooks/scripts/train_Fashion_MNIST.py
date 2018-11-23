@@ -1,16 +1,20 @@
 from __future__ import print_function
-import keras
-from keras.datasets import fashion_mnist
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Flatten
-from keras.layers import Conv2D, MaxPooling2D
-from keras import backend as K
-import tensorflow as tf
-from azureml.core.run import Run
 import os
 import shutil
+import numpy as np
+from functools import partial
+import tensorflow as tf
+from tensorflow import keras
+from tensorflow.keras.datasets import fashion_mnist
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Dense, Dropout, Flatten
+from tensorflow.keras.layers import Conv2D, MaxPooling2D
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras import backend as K
+from azureml.core.run import Run
 
-os.makedirs('./outputs', exist_ok=True)
+outputs_folder = './outputs'
+os.makedirs(outputs_folder, exist_ok=True)
 
 run = Run.get_context()
 
@@ -91,7 +95,7 @@ model.compile(loss=keras.losses.categorical_crossentropy,
 #   Define callbacks
 my_callbacks = [
     keras.callbacks.EarlyStopping(monitor='val_acc', patience=5, mode='max'), 
-    keras.callbacks.ModelCheckpoint('./outputs/model.h5', verbose=1)
+    keras.callbacks.ModelCheckpoint('./outputs/checkpoint.h5', verbose=1)
 ]
 
 #   Train the model and test/validate the mode with the test data after each cycle (epoch) through the training data
@@ -120,44 +124,39 @@ plt.plot(epoch_list, hist.history['acc'], epoch_list, hist.history['val_acc'])
 plt.legend(('Training Accuracy', 'Validation Accuracy'))
 run.log_image(name='Accuracy', plot=plt)
 
-# Use this only for export of the model.  
-# This must come before the instantiation of ResNet50
-K._LEARNING_PHASE = tf.constant(0)
-K.set_learning_phase(0)
+estimator_model_dir = os.path.join(outputs_folder, "estimator_model")
 
-# The export path contains the name and the version of the model
-model = tf.keras.models.load_model('./outputs/model.h5')
-export_path = 'outputs/saved_model'
-print('Exporting trained model to', export_path)
-with K.get_session() as sess:
-    # Import the libraries needed for saving models
-    from tensorflow.python.saved_model import builder as saved_model_builder
-    from tensorflow.python.saved_model import tag_constants, signature_constants, signature_def_utils_impl
+# First, convert Keras Model to TensorFlow Estimator
+model_input_name = model.input_names[0]
+estimator_model = keras.estimator.model_to_estimator(keras_model=model, model_dir=estimator_model_dir)
 
-    prediction_signature = tf.saved_model.signature_def_utils.predict_signature_def(
-        {"image": model.input}, 
-        {"prediction":model.output}
-    )
+def serving_input_receiver_fn():
+    input_ph = tf.placeholder(tf.string, shape=[None], name='image_binary')
+    base64 = tf.io.decode_base64(input_ph)
+    images = tf.map_fn(partial(tf.image.decode_image, channels=1), base64, dtype=tf.uint8)
+    images = tf.cast(images, tf.float32) / 255.
+    images.set_shape([None, 28, 28, 1])
 
-    # export_path is a directory in which the model will be created
-    builder = saved_model_builder.SavedModelBuilder(export_path)
-    legacy_init_op = tf.group(tf.tables_initializer(), name='legacy_init_op')
+    # the first key is the name of first layer of the (keras) model. 
+    # The second key is the name of the key that will be passed in the prediction request
+    return tf.estimator.export.ServingInputReceiver({model_input_name: images}, {'bytes': input_ph})
 
-    # Initialize global variables and the model
-    init_op = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
-    sess.run(init_op)
+tf_model_path = os.path.join(outputs_folder, "saved_model")
+export_path = estimator_model.export_savedmodel(
+    tf_model_path, 
+    serving_input_receiver_fn=serving_input_receiver_fn
+)
 
-    # Add the meta_graph and the variables to the builder
-    builder.add_meta_graph_and_variables(
-        sess,
-        [tag_constants.SERVING],
-        signature_def_map={
-            signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY: prediction_signature,
-        },
-    legacy_init_op=legacy_init_op)
+shutil.make_archive(tf_model_path, 'gztar', tf_model_path)
+shutil.rmtree(tf_model_path, ignore_errors=True)
+print("Model exported to " + tf_model_path + ".tar.gz")
 
-    # save the graph
-    builder.save()
-    
-    shutil.make_archive(export_path, 'zip', export_path)
-    shutil.rmtree(export_path, ignore_errors=True)
+keras_path = os.path.join(outputs_folder, "keras")
+os.makedirs(keras_path, exist_ok=True)
+
+print("Exporting Keras models to", keras_path)
+with open(os.path.join(keras_path, "model.json"), 'w') as f:
+    f.write(model.to_json())
+model.save_weights(os.path.join(keras_path, 'model.h5'))
+
+model.save(os.path.join(keras_path, 'full_model.h5'))

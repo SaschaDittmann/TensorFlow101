@@ -1,7 +1,6 @@
 # Workshop: TensorFlow 101 with the Azure Machine Learning Service
 
-[![](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/SaschaDittmann/TensorFlow101)
-[![](https://img.shields.io/github/tag/SaschaDittmann/TensorFlow101.svg)](https://github.com/SaschaDittmann/TensorFlow101)
+[![](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/SaschaDittmann/TensorFlow101)  [![](https://img.shields.io/github/tag/SaschaDittmann/TensorFlow101.svg)](https://github.com/SaschaDittmann/TensorFlow101)
 
 ## About this Docker Image
 
@@ -14,6 +13,7 @@ It's based on the official [tensorflow docker image](https://hub.docker.com/r/te
 version          | description                               | size 
 ---------------- | ----------------------------------------- | ------
 [![](https://images.microbadger.com/badges/version/bytesmith/tensorflow101.svg)](https://hub.docker.com/r/bytesmith/tensorflow101) | Latest build from the [GitHub Repo](https://github.com/SaschaDittmann/TensorFlow101) | [![](https://images.microbadger.com/badges/image/bytesmith/tensorflow101.svg)](https://microbadger.com/images/bytesmith/tensorflow101)
+[![](https://images.microbadger.com/badges/version/bytesmith/tensorflow101:release-0.2.0.svg)](https://hub.docker.com/r/bytesmith/tensorflow101) | Demos and exercises, used at the at the MS Partner Training (Nov 23th, 2018). - [GitHub Release](https://github.com/SaschaDittmann/TensorFlow101/releases/tag/0.2.0). | [![](https://images.microbadger.com/badges/image/bytesmith/tensorflow101:release-0.2.0.svg)](https://microbadger.com/images/bytesmith/tensorflow101:release-0.2.0)
 [![](https://images.microbadger.com/badges/version/bytesmith/tensorflow101:release-0.1.0.svg)](https://hub.docker.com/r/bytesmith/tensorflow101) | Contains the first set of demos and exercises, used at the [Softwerkskammer Jena](https://www.meetup.com/de-DE/jenadevs/events/255559364/) Meetup. - [GitHub Release](https://github.com/SaschaDittmann/TensorFlow101/releases/tag/0.1.0). | [![](https://images.microbadger.com/badges/image/bytesmith/tensorflow101:release-0.1.0.svg)](https://microbadger.com/images/bytesmith/tensorflow101:release-0.1.0)
 
 ## Quickstart
