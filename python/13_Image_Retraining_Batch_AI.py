@@ -8,7 +8,7 @@ import tensorflow as tf
 import numpy as np
 import azureml.core
 from azureml.core import Workspace, Experiment
-from azureml.core.compute import AksCompute, BatchAiCompute, ComputeTarget
+from azureml.core.compute import AksCompute, AmlCompute, ComputeTarget
 from azureml.core.compute_target import ComputeTargetException
 from azureml.core.runconfig import DataReferenceConfiguration
 from azureml.core.model import Model
@@ -61,18 +61,18 @@ print("Provisioning an Azure Batch AI cluster ...")
 # Create Azure Batch AI cluster (GPU-enabled) as a compute target
 compute_target_name = 'myazbai'
 try:
-    batch_ai_compute = BatchAiCompute(workspace=ws, name=compute_target_name)
+    batch_ai_compute = AmlCompute(workspace=ws, name=compute_target_name)
     print('found existing Azure Batch AI cluster:', batch_ai_compute.name)
 except ComputeTargetException:
     print('creating new Azure Batch AI cluster...')
-    batch_ai_config = BatchAiCompute.provisioning_configuration(
+    batch_ai_config = AmlCompute.provisioning_configuration(
         vm_size="Standard_NC6",
         vm_priority="dedicated",
         autoscale_enabled = True,
-        cluster_min_nodes = 0,
-        cluster_max_nodes = 4
+        min_nodes = 0,
+        max_nodes = 4
     )
-    batch_ai_compute = BatchAiCompute.create(
+    batch_ai_compute = AmlCompute.create(
         ws, 
         name=compute_target_name, 
         provisioning_configuration=batch_ai_config

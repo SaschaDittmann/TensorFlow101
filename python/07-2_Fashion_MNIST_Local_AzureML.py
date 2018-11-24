@@ -45,7 +45,7 @@ print('x_test shape:', x_test.shape)
 #   Deal with format issues between different backends.  Some put the # of channels in the image before the width and height of image.
 if K.image_data_format() == 'channels_first':
     x_train = x_train.reshape(x_train.shape[0], 1, img_rows, img_cols)
-    x_test = X_test.reshape(x_test.shape[0], 1, img_rows, img_cols)
+    x_test = x_test.reshape(x_test.shape[0], 1, img_rows, img_cols)
     input_shape = (1, img_rows, img_cols)
 else:
     x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
@@ -174,24 +174,17 @@ with experiment.start_logging() as run:
         # The second key is the name of the key that will be passed in the prediction request
         return tf.estimator.export.ServingInputReceiver({model_input_name: images}, {'bytes': input_ph})
 
-    print("Exporting model...")
+    print("Exporting TensorFlow model...")
     export_path = estimator_model.export_savedmodel(
         os.path.join(outputs_folder, "saved_model"), 
         serving_input_receiver_fn=serving_input_receiver_fn
     )
-    print("Model exported to", export_path)
-
-    print("Uploading model...")
-    for root, dirs, files in os.walk(export_path):
-        for filename in files:
-            file_path = os.path.join(root, filename)
-            run.upload_file(file_path.replace(outputs_folder, "outputs"), file_path)
 
     # Keras exports
     keras_path = os.path.join(outputs_folder, "keras")
     os.makedirs(keras_path, exist_ok=True)
 
-    print("Exporting Keras model to", keras_path)
+    print("Exporting Keras model...")
     keras_model_json = os.path.join(keras_path, "model.json")
     keras_model_weights = os.path.join(keras_path, 'model.h5')
     keras_full_model = os.path.join(keras_path, 'full_model.h5')
@@ -200,7 +193,8 @@ with experiment.start_logging() as run:
     model.save_weights(keras_model_weights)
     model.save(keras_full_model)
 
-    print("Uploading Keras model...")
-    run.upload_file("outputs/keras/model.json", keras_model_json)
-    run.upload_file("outputs/keras/model.h5", keras_model_weights)
-    run.upload_file("outputs/keras/full_model.h5", keras_full_model)
+    print("Uploading output...")
+    for root, dirs, files in os.walk(outputs_folder):
+        for filename in files:
+            file_path = os.path.join(root, filename)
+            run.upload_file(file_path.replace(outputs_folder, "outputs"), file_path)
