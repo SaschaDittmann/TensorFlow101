@@ -20,7 +20,7 @@ version          | description                               | size
 
 Insert your Azure Subscription ID in the following Docker command and start your container.
 
-```
+```bash
 docker run -it --rm \
     -p 8888:8888 -p 6006:6006 \
     -e "SUBSCRIPTION_ID=<subscription id>" \
