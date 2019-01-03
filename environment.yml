@@ -9,5 +9,5 @@ dependencies:
   - pandas
   - pip:
     - azure-cli
-    - azureml-sdk[automl,contrib,notebooks]==1.0.2
+    - azureml-sdk[automl,contrib,notebooks]==1.0.6
     - tensorflow-serving-api
