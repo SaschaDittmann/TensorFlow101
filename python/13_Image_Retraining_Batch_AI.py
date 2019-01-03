@@ -134,14 +134,14 @@ else:
     }
 
     estimator = TensorFlow(
-    source_directory=project_folder,
-    source_directory_data_store=ds,
-    compute_target=batch_ai_compute,
-    script_params=script_params,
-    entry_script='retrain.py',
-    pip_packages=['tensorflow_hub'],
-    node_count=1,
-    use_gpu=True
+        source_directory=project_folder,
+        source_directory_data_store=ds,
+        compute_target=batch_ai_compute,
+        script_params=script_params,
+        entry_script='retrain.py',
+        pip_packages=['tensorflow_hub'],
+        node_count=1,
+        use_gpu=True
     )
 
     # Overwrite data store reference
@@ -151,7 +151,7 @@ else:
         mode='download', # download files from datastore to compute target
         overwrite=True
     )
-    estimator.run_config.data_references['workspacefilestore'] = dr
+    estimator.run_config.data_references[ds.name] = dr
 
     # Submit Experiment
     print("Training the model...")
