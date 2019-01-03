@@ -41,9 +41,9 @@ except ComputeTargetException:
     batch_ai_config = AmlCompute.provisioning_configuration(
         vm_size="Standard_NC6",
         vm_priority="dedicated",
-        autoscale_enabled = True,
         min_nodes = 0,
-        max_nodes = 4
+        max_nodes = 4,
+        idle_seconds_before_scaledown=300
     )
     batch_ai_compute = AmlCompute.create(
         ws, 
