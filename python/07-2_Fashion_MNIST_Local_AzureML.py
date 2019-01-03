@@ -194,7 +194,9 @@ with experiment.start_logging() as run:
     model.save(keras_full_model)
 
     print("Uploading output...")
-    for root, dirs, files in os.walk(outputs_folder):
+    for root, dirs, files in os.walk(outputs_folder, topdown=False):
         for filename in files:
-            file_path = os.path.join(root, filename)
-            run.upload_file(file_path.replace(outputs_folder, "outputs"), file_path)
+            source = os.path.join(root, filename)
+            name = source.replace(outputs_folder, "./outputs")
+            print("Uploading " + filename)
+            run.upload_file(name, source)
