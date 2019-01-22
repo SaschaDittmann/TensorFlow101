@@ -1,6 +1,6 @@
 # Workshop: TensorFlow 101 with the Azure Machine Learning Service
 
-[![](https://img.shields.io/github/license/mashape/apistatus.svg)](https://github.com/SaschaDittmann/TensorFlow101)  [![](https://img.shields.io/github/tag/SaschaDittmann/TensorFlow101.svg)](https://github.com/SaschaDittmann/TensorFlow101)
+[![](https://img.shields.io/github/license/SaschaDittmann/TensorFlow101.svg)](https://github.com/SaschaDittmann/TensorFlow101)  [![](https://img.shields.io/github/tag/SaschaDittmann/TensorFlow101.svg)](https://github.com/SaschaDittmann/TensorFlow101)
 
 ## About this Docker Image
 
