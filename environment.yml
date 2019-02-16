@@ -5,9 +5,11 @@ dependencies:
   - keras=2.1.5
   - matplotlib
   - notebook
+  - nb_conda
   - requests
   - pandas
+  - cython
   - pip:
     - azure-cli
-    - azureml-sdk[automl,contrib,notebooks]==1.0.8
+    - azureml-sdk[automl,contrib,notebooks]==1.0.15
     - tensorflow-serving-api
