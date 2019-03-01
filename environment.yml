@@ -8,8 +8,7 @@ dependencies:
   - nb_conda
   - requests
   - pandas
-  - cython
   - pip:
     - azure-cli
-    - azureml-sdk[automl,contrib,notebooks]==1.0.15
+    - azureml-sdk[automl,contrib,notebooks]==1.0.17
     - tensorflow-serving-api
