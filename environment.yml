@@ -1,8 +1,7 @@
 name: tensorflow101
 dependencies:
   - python=3.6
-  - tensorflow=1.10.0
-  - keras=2.1.5
+  - tensorflow=1.13.1
   - matplotlib
   - notebook
   - nb_conda
@@ -10,5 +9,5 @@ dependencies:
   - pandas
   - pip:
     - azure-cli
-    - azureml-sdk[automl,contrib,notebooks]==1.0.21
+    - azureml-sdk[automl,contrib,notebooks]==1.0.39
     - tensorflow-serving-api
