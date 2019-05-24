@@ -101,8 +101,8 @@ except ComputeTargetException:
 
     # AKS configuration
     prov_config = AksCompute.provisioning_configuration(
-        #agent_count=2,
-        #vm_size="Standard_D3_v2"
+        agent_count=3,
+        vm_size="Standard_B4ms"
     )
     
     # Create the cluster

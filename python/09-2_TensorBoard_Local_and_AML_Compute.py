@@ -67,30 +67,30 @@ runs.append(run)
 
 run.wait_for_completion(show_output=True)
 
-# Once more, with a Batch AI cluster
+# Once more, with an Azure ML Compute cluster
 from azureml.core.compute import AmlCompute
 from azureml.core.compute_target import ComputeTargetException
 
-compute_target_name = 'myazbai'
+compute_target_name = 'myamlcompute'
 
 try:
-    batch_ai_compute = AmlCompute(workspace=ws, name=compute_target_name)
-    print('found existing Azure Batch AI cluster:', batch_ai_compute.name)
+    aml_compute = AmlCompute(workspace=ws, name=compute_target_name)
+    print('found existing Azure ML Compute cluster:', aml_compute.name)
 except ComputeTargetException:
-    print('creating new Azure Batch AI cluster...')
-    batch_ai_config = AmlCompute.provisioning_configuration(
+    print('creating new Azure ML Compute cluster...')
+    aml_config = AmlCompute.provisioning_configuration(
         vm_size="Standard_NC6",
         vm_priority="dedicated",
         min_nodes = 0,
         max_nodes = 4,
         idle_seconds_before_scaledown=300
     )
-    batch_ai_compute = AmlCompute.create(
+    aml_compute = AmlCompute.create(
         ws, 
         name=compute_target_name, 
-        provisioning_configuration=batch_ai_config
+        provisioning_configuration=aml_config
     )
-    batch_ai_compute.wait_for_completion(show_output=True)
+    aml_compute.wait_for_completion(show_output=True)
 
 # Submit run using TensorFlow estimator
 from azureml.train.dnn import TensorFlow
@@ -101,9 +101,10 @@ script_params = {
 
 tf_estimator = TensorFlow(
     source_directory='./scripts',
-    compute_target=batch_ai_compute,
+    compute_target=aml_compute,
     entry_script='mnist_with_summaries.py',
-    script_params=script_params
+    script_params=script_params,
+    framework_version='1.10'
 )
 
 run = exp.submit(tf_estimator)
@@ -111,7 +112,7 @@ run = exp.submit(tf_estimator)
 runs.append(run)
 run.wait_for_completion(show_output=True)
 
-from azureml.contrib.tensorboard import Tensorboard
+from azureml.tensorboard import Tensorboard
 
 # The TensorBoard constructor takes an array of runs...
 # and it turns out that we have been building one of those all along.

@@ -44,9 +44,9 @@ run_config.target = dsvm_compute.name
 # specify CondaDependencies obj
 conda_dep = CondaDependencies.create(
     python_version='3.6.2', 
-    conda_packages=['keras', 'matplotlib']
+    conda_packages=['keras=2.1.5', 'matplotlib=3.0.1']
 )
-conda_dep.add_tensorflow_conda_package(core_type='cpu')
+conda_dep.add_tensorflow_conda_package(core_type='cpu', version='1.10')
 run_config.environment.python.conda_dependencies = conda_dep
 
 # Create a directory that will contain all the necessary code from your local machine 

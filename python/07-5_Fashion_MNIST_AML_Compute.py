@@ -14,30 +14,30 @@ from azureml.core import Experiment
 experiment_name = 'fashion-mnist'
 experiment = Experiment(workspace = ws, name = experiment_name)
 
-# Create Azure Batch AI cluster (GPU-enabled) as a compute target
+# Create Azure ML Compute cluster (GPU-enabled) as a compute target
 from azureml.core.compute import AmlCompute
 from azureml.core.compute_target import ComputeTargetException
 
-compute_target_name = 'myazbai'
+compute_target_name = 'myamlcompute'
 
 try:
-    batch_ai_compute = AmlCompute(workspace=ws, name=compute_target_name)
-    print('found existing Azure Batch AI cluster:', batch_ai_compute.name)
+    aml_compute = AmlCompute(workspace=ws, name=compute_target_name)
+    print('found existing Azure ML Compute cluster:', aml_compute.name)
 except ComputeTargetException:
-    print('creating new Azure Batch AI cluster...')
-    batch_ai_config = AmlCompute.provisioning_configuration(
+    print('creating new Azure ML Compute cluster...')
+    aml_config = AmlCompute.provisioning_configuration(
         vm_size="Standard_NC6",
         vm_priority="dedicated",
         min_nodes = 0,
         max_nodes = 4,
         idle_seconds_before_scaledown=300
     )
-    batch_ai_compute = AmlCompute.create(
+    aml_compute = AmlCompute.create(
         ws, 
         name=compute_target_name, 
-        provisioning_configuration=batch_ai_config
+        provisioning_configuration=aml_config
     )
-    batch_ai_compute.wait_for_completion(show_output=True)
+    aml_compute.wait_for_completion(show_output=True)
 
 # Create a directory that will contain all the necessary code from your local machine 
 # that you will need access to on the remote resource. This includes the training script, 
@@ -58,17 +58,16 @@ shutil.copy('./scripts/train_Fashion_MNIST.py', project_folder)
 from azureml.train.dnn import TensorFlow
 
 estimator = TensorFlow(source_directory=project_folder,
-                       compute_target=batch_ai_compute,
+                       compute_target=aml_compute,
                        entry_script='train_Fashion_MNIST.py',
                        node_count=1,
-                       worker_count=1,
-                       parameter_server_count=1,
-                       conda_packages=['keras', 'matplotlib'],
+                       conda_packages=['keras=2.1.5', 'matplotlib=3.0.1'],
+                       framework_version='1.10',
                        use_gpu=True)
 
 # Submit Experiment
 run = experiment.submit(estimator)
-run.tag("Description","Batch AI trained Fashion MNIST model")
+run.tag("Description","AML Compute trained Fashion MNIST model")
 run.wait_for_completion(show_output=True)
 
 # Show Metrics

@@ -10,46 +10,6 @@ print("Resource group: ", ws.resource_group)
 print("Location: ", ws.location)
 print("Workspace name: ", ws.name)
 
-from azureml.core import Experiment
-experiment_name = 'fashion-mnist'
-experiment = Experiment(workspace = ws, name = experiment_name)
-
-from azureml.core.runconfig import RunConfiguration
-from azureml.core.conda_dependencies import CondaDependencies
-
-# create a new runconfig object
-run_config = RunConfiguration()
-
-# signal that you want to use ACI to execute script.
-run_config.target = "containerinstance"
-
-# ACI container group is only supported in certain regions, which can be different than the region the Workspace is in.
-run_config.container_instance.region = ws.location
-
-# set the ACI CPU and Memory 
-run_config.container_instance.cpu_cores = 1
-run_config.container_instance.memory_gb = 2
-
-# enable Docker 
-run_config.environment.docker.enabled = True
-
-# set Docker base image to the default CPU-based image
-run_config.environment.docker.base_image = azureml.core.runconfig.DEFAULT_CPU_IMAGE
-
-# use conda_dependencies.yml to create a conda environment in the Docker image for execution
-run_config.environment.python.user_managed_dependencies = False
-
-# auto-prepare the Docker image when used for execution (if it is not already prepared)
-run_config.auto_prepare_environment = True
-
-# specify CondaDependencies obj
-conda_dep = CondaDependencies.create(
-    python_version='3.6.2', 
-    conda_packages=['keras', 'matplotlib']
-)
-conda_dep.add_tensorflow_conda_package(core_type='cpu')
-run_config.environment.python.conda_dependencies = conda_dep
-
 # Create a directory that will contain all the necessary code from your local machine 
 # that you will need access to on the remote resource. This includes the training script, 
 # and any additional files your training script depends on.
@@ -58,8 +18,25 @@ import os
 project_folder = './tmp/fashion-mnist-aci'
 os.makedirs(project_folder, exist_ok=True)
 
+config_folder = os.path.join(project_folder, 'aml_config')
+os.makedirs(config_folder, exist_ok=True)
+
 import shutil
 shutil.copy('./scripts/train_Fashion_MNIST.py', project_folder)
+shutil.copy('./resources/configs/fashion_mnist_aci_dependencies.yml', config_folder)
+shutil.copy('./resources/configs/fashion_mnist_aci.runconfig', config_folder)
+
+# Create An Experiment
+from azureml.core import Experiment
+experiment_name = 'fashion-mnist'
+experiment = Experiment(workspace = ws, name = experiment_name)
+
+# Load Configuration
+from azureml.core.runconfig import RunConfiguration
+from azureml.core.conda_dependencies import CondaDependencies
+
+# create a new runconfig object
+run_config = RunConfiguration.load(path=project_folder, name='fashion_mnist_aci')
 
 # Submit Experiment
 from azureml.core.script_run_config import ScriptRunConfig

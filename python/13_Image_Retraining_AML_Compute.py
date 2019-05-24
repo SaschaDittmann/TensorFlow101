@@ -17,7 +17,7 @@ from azureml.train.dnn import TensorFlow
 from azureml.core.webservice import AksWebservice, Webservice
 from azureml.core.webservice.webservice import WebserviceException
 from azureml.core.image import ContainerImage
-from azureml.contrib.tensorboard import Tensorboard
+from azureml.tensorboard import Tensorboard
 
 # Check  SDK version numbers
 print("Azure ML SDK Version: ", azureml.core.VERSION)
@@ -46,8 +46,8 @@ except ComputeTargetException:
 
     # AKS configuration
     prov_config = AksCompute.provisioning_configuration(
-        #agent_count=2,
-        #vm_size="Standard_D3_v2"
+        agent_count=3,
+        vm_size="Standard_B4ms"
     )
     
     # Create the cluster
@@ -57,27 +57,28 @@ except ComputeTargetException:
         provisioning_configuration = prov_config
     )
 
-print("Provisioning an Azure Batch AI cluster ...")
-# Create Azure Batch AI cluster (GPU-enabled) as a compute target
-compute_target_name = 'myazbai'
+print("Provisioning an Azure ML Compute cluster ...")
+# Create Azure ML Compute cluster (GPU-enabled) as a compute target
+compute_target_name = 'myamlcompute'
+
 try:
-    batch_ai_compute = AmlCompute(workspace=ws, name=compute_target_name)
-    print('found existing Azure Batch AI cluster:', batch_ai_compute.name)
+    aml_compute = AmlCompute(workspace=ws, name=compute_target_name)
+    print('found existing Azure ML Compute cluster:', aml_compute.name)
 except ComputeTargetException:
-    print('creating new Azure Batch AI cluster...')
-    batch_ai_config = AmlCompute.provisioning_configuration(
+    print('creating new Azure ML Compute cluster...')
+    aml_config = AmlCompute.provisioning_configuration(
         vm_size="Standard_NC6",
         vm_priority="dedicated",
         min_nodes = 0,
         max_nodes = 4,
         idle_seconds_before_scaledown=300
     )
-    batch_ai_compute = AmlCompute.create(
+    aml_compute = AmlCompute.create(
         ws, 
         name=compute_target_name, 
-        provisioning_configuration=batch_ai_config
+        provisioning_configuration=aml_config
     )
-    batch_ai_compute.wait_for_completion(show_output=True)
+    aml_compute.wait_for_completion(show_output=True)
 
 # Create a directory that will contain all the necessary code from your local machine 
 # that you will need access to on the remote resource. This includes the training script, 
@@ -136,11 +137,12 @@ else:
     estimator = TensorFlow(
         source_directory=project_folder,
         source_directory_data_store=ds,
-        compute_target=batch_ai_compute,
+        compute_target=aml_compute,
         script_params=script_params,
         entry_script='retrain.py',
         pip_packages=['tensorflow_hub'],
         node_count=1,
+        framework_version='1.10',
         use_gpu=True
     )
 
