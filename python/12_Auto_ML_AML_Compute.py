@@ -30,27 +30,27 @@ print("Workspace name: ", ws.name)
 experiment_name = 'automl-remote-batchai'
 experiment = Experiment(ws, experiment_name)
 
-# Create Batch AI Cluster
-compute_target_name = 'myazbai'
+# Create Azure ML Compute cluster (GPU-enabled) as a compute target
+compute_target_name = 'myamlcompute'
 
 try:
-    batch_ai_compute = AmlCompute(workspace=ws, name=compute_target_name)
-    print('found existing Azure Batch AI cluster:', batch_ai_compute.name)
+    aml_compute = AmlCompute(workspace=ws, name=compute_target_name)
+    print('found existing Azure ML Compute cluster:', aml_compute.name)
 except ComputeTargetException:
-    print('creating new Azure Batch AI cluster...')
-    batch_ai_config = AmlCompute.provisioning_configuration(
+    print('creating new Azure ML Compute cluster...')
+    aml_config = AmlCompute.provisioning_configuration(
         vm_size="Standard_NC6",
         vm_priority="dedicated",
         min_nodes = 0,
         max_nodes = 4,
         idle_seconds_before_scaledown=300
     )
-    batch_ai_compute = AmlCompute.create(
+    aml_compute = AmlCompute.create(
         ws, 
         name=compute_target_name, 
-        provisioning_configuration=batch_ai_config
+        provisioning_configuration=aml_config
     )
-    batch_ai_compute.wait_for_completion(show_output=True)
+    aml_compute.wait_for_completion(show_output=True)
 
 project_folder = './tmp/automl-remote-batchai'
 if not os.path.exists(project_folder):
@@ -71,7 +71,7 @@ automl_config = AutoMLConfig(
     max_concurrent_iterations = 5,
     verbosity = logging.INFO,
     path = project_folder,
-    compute_target = batch_ai_compute,
+    compute_target = aml_compute,
     data_script = project_folder + "/get_data.py"
 )
 remote_run = experiment.submit(automl_config, show_output = False)
