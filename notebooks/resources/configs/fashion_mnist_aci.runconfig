@@ -4,16 +4,20 @@ script: train_Fashion_MNIST.py
 arguments: []
 # The name of the compute target to use for this run.
 target: containerinstance
-# Framework to execute inside. Allowed values are "Python" ,  "PySpark", "TensorFlowParameterServer" and "PythonMPI".
+# Framework to execute inside. Allowed values are "Python" ,  "PySpark", "CNTK",  "TensorFlow", and "PyTorch".
 framework: Python
-# Automatically prepare the run environment as part of the run itself.
-autoPrepareEnvironment: true
+# Communicator for the given framework. Allowed values are "None" ,  "ParameterServer", "OpenMpi", and "IntelMpi".
+communicator: None
 # Maximum allowed duration for the run.
 maxRunDurationSeconds:
 # Number of nodes to use for running job.
 nodeCount: 1
 # Environment details.
 environment:
+# Environment name
+  name:
+# Environment version
+  version:
 # Environment variables set for the run.
   environmentVariables:
     EXAMPLE_ENV_VAR: EXAMPLE_VALUE
@@ -27,16 +31,20 @@ environment:
 # contains multiple programs with different sets of dependencies, it may be
 # convenient to manage those environments with separate files.
     condaDependenciesFile: aml_config/fashion_mnist_aci_dependencies.yml
+# The base conda environment used for incremental environment creation.
+    baseCondaEnvironment:
 # Docker details
   docker:
 # Set True to perform this run inside a Docker container.
     enabled: true
-# Base image used for Docker-based runs.
-    baseImage: mcr.microsoft.com/azureml/base:0.1.4
+# Base image used for Docker-based runs. Mutually exclusive with base_dockerfile.
+    baseImage: mcr.microsoft.com/azureml/base:intelmpi2018.3-ubuntu16.04
+# Base Dockerfile used for Docker-based runs. Mutually exclusive with base_image
+    baseDockerfile:
 # Set False if necessary to work around shared volume bugs.
     sharedVolumes: true
-# Run with NVidia Docker extension to support GPUs.
-    gpuSupport: false
+# Shared memory size for Docker container. Default is 2g.
+    shmSize: 2g
 # Extra arguments to the Docker run command.
     arguments: []
 # Image registry that contains the base image.
@@ -50,13 +58,11 @@ environment:
 # Spark details
   spark:
 # List of spark repositories.
-    repositories:
-    - https://mmlspark.azureedge.net/maven
-    packages:
-    - group: com.microsoft.ml.spark
-      artifact: mmlspark_2.11
-      version: '0.12'
-    precachePackages: true
+    repositories: []
+# The packages to use.
+    packages: []
+# Whether to precache the packages.
+    precachePackages: false
 # Databricks details
   databricks:
 # List of maven libraries.
@@ -69,18 +75,24 @@ environment:
     jarLibraries: []
 # List of Egg libraries
     eggLibraries: []
+# Inferencing stack version
+  inferencingStackVersion:
 # History details.
 history:
 # Enable history tracking -- this allows status, logs, metrics, and outputs
 # to be collected for a run.
   outputCollection: true
-# whether to take snapshots for history.
+# Whether to take snapshots for history.
   snapshotProject: true
+# Directories to sync with FileWatcher.
+  directoriesToWatch:
+  - logs
 # Spark configuration details.
 spark:
+# The Spark configuration.
   configuration:
-    spark.app.name: Azure ML Experiment
     spark.yarn.maxAppAttempts: 1
+    spark.app.name: Azure ML Experiment
 # HDI details.
 hdi:
 # Yarn deploy mode. Options are cluster and client.
@@ -105,11 +117,15 @@ containerInstance:
   region: westeurope
 # data reference configuration details
 dataReferences: {}
+# The configuration details for data.
+data: {}
+# Project share datastore reference.
+sourceDirectoryDataStore:
 # AmlCompute details.
 amlcompute:
 # VM size of the Cluster to be created.Allowed values are Azure vm sizes.The list of vm sizes is available in 'https://docs.microsoft.com/en-us/azure/cloud-services/cloud-services-sizes-specs
   vmSize:
-# VM priority of the Cluster to be created.Allowed values are "dedicated" , "lowpriority".
+# VM priority of the Cluster to be created. Allowed values are:"dedicated" , "lowpriority".
   vmPriority:
 # A bool that indicates if the cluster has to be retained after job completion.
   retainCluster: false
