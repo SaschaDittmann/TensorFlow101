@@ -103,15 +103,20 @@ venv.bak/
 # mypy
 .mypy_cache/
 
-# Workshop
+# VS Code
+.vscode/
+.ionide/
+
+# Azure ML Services
 aml_config/
+.amlignore
+
+# Workshop
 MNIST_data/
 tb_data/
 .pptx
-.amlignore
 outputs/
 /python/models
 tmp/
-.vscode/
 build-dev.sh
 run-docker.sh
