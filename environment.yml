@@ -1,14 +1,15 @@
 name: tensorflow101
 dependencies:
   - python=3.6
-  - tensorflow=2.0.0
+  - tensorflow=2.1.0
   - matplotlib=3.1.1
   - notebook
   - nb_conda
   - requests
-  - pandas
-  - flask=1.0.3 # required by azureml-sdk 1.0.74
+  - pandas=
+  - flask=1.0.3 # required by azureml-sdk
   - pip:
     - azure-cli
-    - azureml-sdk[automl,contrib,notebooks,tensorboard]==1.0.74
-    - tensorflow-serving-api==2.0.0
+    - azureml-sdk[automl,contrib,notebooks,tensorboard]==1.1.5.1
+    - azureml-dataprep[fuse,pandas]==1.3.5
+    - tensorflow-serving-api==2.1.0
