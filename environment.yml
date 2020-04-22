@@ -9,7 +9,7 @@ dependencies:
   - flask=1.0.3 # required by azureml-sdk
   - pip:
     - azure-cli
-    - azureml-sdk[automl,contrib,notebooks,tensorboard]==1.1.5.1
-    - azureml-dataprep[fuse,pandas]==1.3.5
+    - azureml-sdk[automl,contrib,notebooks,tensorboard]==1.3.0
+    - azureml-dataprep[fuse,pandas]==1.4.6
     - tensorflow==2.1.0
     - tensorflow-serving-api==2.1.0
