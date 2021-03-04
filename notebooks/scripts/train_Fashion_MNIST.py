@@ -2,8 +2,11 @@ from __future__ import print_function
 import warnings
 warnings.filterwarnings('ignore')
 
+import argparse
 import os
 import numpy as np
+import gzip
+import struct
 from functools import partial
 import matplotlib.pyplot as plt
 import tensorflow as tf
@@ -12,7 +15,7 @@ from tensorflow.keras.datasets import fashion_mnist
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, Flatten
 from tensorflow.keras.layers import Conv2D, MaxPooling2D
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint, Callback
 from tensorflow.keras import backend as K
 
 import azureml.core
@@ -23,17 +26,43 @@ print("Using GPU build:", tf.test.is_built_with_cuda())
 print("Is GPU available:", tf.test.is_gpu_available())
 print("Azure ML SDK version:", azureml.core.VERSION)
 
+# let user feed in parameters
+parser = argparse.ArgumentParser()
+parser.add_argument('--data-folder', type=str, dest='data_folder', help='data folder mounting point')
+parser.add_argument('--batch-size', type=int, dest='batch_size', default=128, help='batch size')
+parser.add_argument('--epochs', type=int, dest='epochs', default=24, help='number of epochs')
+args = parser.parse_args()
+data_folder = os.path.join(args.data_folder, 'fashion_mnist')
+print("Data Folder:", data_folder)
+print("Batch Size:", args.batch_size)
+print("Epochs:", args.epochs)
+
 outputs_folder = './outputs'
 os.makedirs(outputs_folder, exist_ok=True)
 
 run = Run.get_context()
 
+# load compressed MNIST gz files we just downloaded and return numpy arrays
+def load_data(filename, label=False):
+    with gzip.open(filename) as gz:
+        struct.unpack('I', gz.read(4))
+        n_items = struct.unpack('>I', gz.read(4))
+        if not label:
+            n_rows = struct.unpack('>I', gz.read(4))[0]
+            n_cols = struct.unpack('>I', gz.read(4))[0]
+            res = np.frombuffer(gz.read(n_items[0] * n_rows * n_cols), dtype=np.uint8)
+            res = res.reshape(n_items[0], n_rows * n_cols)
+        else:
+            res = np.frombuffer(gz.read(n_items[0]), dtype=np.uint8)
+            res = res.reshape(n_items[0], 1)
+    return res
+
 # Number of classes - do not change unless the data changes
 num_classes = 10
 
 # sizes of batch and # of epochs of data
-batch_size = 128
-epochs = 24
+batch_size = args.batch_size
+epochs = args.epochs
 
 # input image dimensions
 img_rows, img_cols = 28, 28
@@ -44,6 +73,11 @@ print('x_train shape:', x_train.shape)
 print('x_test shape:', x_test.shape)
 
 #   Deal with format issues between different backends.  Some put the # of channels in the image before the width and height of image.
+x_train = load_data(os.path.join(data_folder, 'train-images.gz'), False)
+x_test = load_data(os.path.join(data_folder, 'test-images.gz'), False)
+y_train = load_data(os.path.join(data_folder, 'train-labels.gz'), True)
+y_test = load_data(os.path.join(data_folder, 'test-labels.gz'), True)
+
 if K.image_data_format() == 'channels_first':
     x_train = x_train.reshape(x_train.shape[0], 1, img_rows, img_cols)
     x_test = x_test.reshape(x_test.shape[0], 1, img_rows, img_cols)
@@ -94,10 +128,37 @@ model.compile(loss=keras.losses.categorical_crossentropy,
               optimizer=keras.optimizers.Adam(),
               metrics=['accuracy'])
 
+# Helper class for real-time logging
+class AzureExperimentCallback(Callback):
+    def __init__(self, run):
+        self.run = run
+
+    def on_train_begin(self, logs={}):
+        return
+
+    def on_train_end(self, logs={}):
+        return
+
+    def on_epoch_begin(self, epoch, logs={}):
+        return
+
+    def on_epoch_end(self, epoch, logs={}):
+        self.run.log('Training Loss', logs.get('loss'))
+        self.run.log('Training Accuracy', logs.get('accuracy'))
+        self.run.log('Validation Accuracy', logs.get('val_accuracy'))
+        return
+
+    def on_batch_begin(self, batch, logs={}):
+        return
+
+    def on_batch_end(self, batch, logs={}):
+        return
+
 #   Define callbacks
 my_callbacks = [
     EarlyStopping(monitor='val_accuracy', patience=5, mode='max'), 
-    ModelCheckpoint('./outputs/checkpoint.h5', verbose=1)
+    ModelCheckpoint('./outputs/checkpoint.h5', verbose=1),
+    AzureExperimentCallback(run)
 ]
 
 #   Train the model and test/validate the mode with the test data after each cycle (epoch) through the training data
@@ -108,9 +169,6 @@ hist = model.fit(x_train, y_train,
             verbose=1,
             callbacks=my_callbacks,
             validation_data=(x_test, y_test))
-run.log_list('Training Loss', hist.history['loss'])
-run.log_list('Training Accuracy', hist.history['accuracy'])
-run.log_list('Validation Accuracy', hist.history['val_accuracy'])
 
 #   Evaluate the model with the test data to get the scores on "real" data.
 score = model.evaluate(x_test, y_test, verbose=0)
