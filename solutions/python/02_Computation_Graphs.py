@@ -16,10 +16,7 @@ d = tf.multiply(a,b)
 e = tf.add(c,b) 
 f = tf.subtract(d,e)
 
-sess = tf.Session() 
-outs = sess.run(f) 
-sess.close() 
-print("outs = {}".format(outs))
+print("f = {}".format(f))
 
 # **********************
 # ***  Exercise 1-A  ***
@@ -38,12 +35,7 @@ e = tf.subtract(c,d) # 3
 g = tf.divide(f,e) # 5,66666
 # END - ADD YOUR CODE HERE
 
-with tf.Session() as sess:
-   fetches = [a,b,c,d,e,f,g]
-   outs = sess.run(fetches) 
-
-print("outs = {}".format(outs))
-print(type(outs[0]))
+print("a = %.2f\nb = %.2f\nc = %.2f\nd = %.2f\ne = %.2f\nf = %.2f\ng = %.2f" % (a, b, c, d, e, f, g))
 
 
 # **********************
@@ -60,9 +52,4 @@ d = tf.sin(c) # -0.54402111088
 e = tf.divide(d,b) # -0.272010564804
 # END - ADD YOUR CODE HERE
 
-with tf.Session() as sess:
-   fetches = [a,b,c,d,e]
-   outs = sess.run(fetches) 
-
-print("outs = {}".format(outs))
-print(type(outs[0]))
+print("a = %.2f\nb = %.2f\nc = %.2f\nd = %.2f\ne = %.2f" % (a, b, c, d, e))

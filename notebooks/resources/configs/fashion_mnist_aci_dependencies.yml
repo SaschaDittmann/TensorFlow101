@@ -8,10 +8,8 @@ name: project_environment
 dependencies:
   # The python interpreter version.
   # Currently Azure ML only supports 3.5.2 and later.
-- python=3.6.2
-
+- python=3.6.8
+- tensorflow=2.0.0
+- matplotlib=3.1.1
 - pip:
   - azureml-defaults
-- tensorflow=1.10.0
-- keras=2.1.5
-- matplotlib=3.0.1

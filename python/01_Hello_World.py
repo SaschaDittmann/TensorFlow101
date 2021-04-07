@@ -18,7 +18,4 @@ hw = h + w
 
 print(hw)
 
-with tf.Session() as sess:
-    ans = sess.run(hw)
-
-print(ans)
+tf.print(hw)
